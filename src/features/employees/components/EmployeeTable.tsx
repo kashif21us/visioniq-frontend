@@ -15,11 +15,13 @@ import EmployeeDrawer from "./EmployeeDrawer";
 import EmployeeEditModal from "./EmployeeEditModal";
 import EmployeeDeleteDialog from "./EmployeeDeleteDialog";
 import type { Employee } from "../types/employee";
+
 type EmployeeTableProps = {
   search: string;
   department: string;
   status: string;
 };
+
 export default function EmployeeTable({
   search,
   department,
@@ -31,6 +33,7 @@ export default function EmployeeTable({
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
+
   const filteredEmployees = useMemo(() => {
     return data.filter((employee) => {
       const matchesSearch =
@@ -44,6 +47,7 @@ export default function EmployeeTable({
       return matchesSearch && matchesDepartment && matchesStatus;
     });
   }, [data, search, department, status]);
+
   if (isLoading) {
     return (
       <div className="rounded-xl border bg-white p-6">
@@ -51,9 +55,15 @@ export default function EmployeeTable({
       </div>
     );
   }
+
   if (isError) {
+    return (
       <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-600">
         Failed to load employees.
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -96,9 +106,17 @@ export default function EmployeeTable({
                   </td>
                   <td className="p-4 font-medium">
                     {employee.employee_id}
+                  </td>
+                  <td className="p-4">
                     {employee.name}
+                  </td>
+                  <td className="p-4">
                     {employee.department}
+                  </td>
+                  <td className="p-4">
                     {employee.designation}
+                  </td>
+                  <td className="p-4">
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${
                         employee.status === "Active"
@@ -108,6 +126,8 @@ export default function EmployeeTable({
                     >
                       {employee.status}
                     </span>
+                  </td>
+                  <td className="p-4">
                     <div className="flex justify-center gap-2">
                       <button
                         onClick={() => {
@@ -118,16 +138,33 @@ export default function EmployeeTable({
                       >
                         <Eye size={16} />
                       </button>
+                      <button
+                        onClick={() => {
+                          setSelectedEmployee(employee);
                           setEditOpen(true);
+                        }}
                         className="rounded-lg border p-2 hover:bg-blue-50"
+                      >
                         <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedEmployee(employee);
                           setDeleteOpen(true);
+                        }}
                         className="rounded-lg border p-2 hover:bg-red-50"
+                      >
                         <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
       <EmployeeDrawer
         open={drawerOpen}
         employee={selectedEmployee}
@@ -136,15 +173,29 @@ export default function EmployeeTable({
           setSelectedEmployee(null);
         }}
       />
+
       <EmployeeEditModal
         open={editOpen}
+        employee={selectedEmployee}
+        onClose={() => {
           setEditOpen(false);
-    
+          setSelectedEmployee(null);
+        }}
+      />
+
       <EmployeeDeleteDialog
         open={deleteOpen}
+        employee={selectedEmployee}
+        onClose={() => {
           setDeleteOpen(false);
+          setSelectedEmployee(null);
+        }}
         onConfirm={() => {
           console.log("Delete Employee:", selectedEmployee);
+          setDeleteOpen(false);
+          setSelectedEmployee(null);
+        }}
+      />
     </>
   );
 }
